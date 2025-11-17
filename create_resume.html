@@ -1,123 +1,237 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8"/><title>Create Resume</title><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
-<main class="container">
-  <div class="card">
-    <h2>Create Resume</h2>
-    <div class="row">
-      <div class="form-group" style="flex:1">
-        <label for="designType">Design type</label>
-        <input id="designType" value="clean"/>
-      </div>
-      <div class="form-group" style="flex:1">
-        <label for="profession">Profession</label>
-        <input id="profession" value="Software Engineer"/>
-      </div>
-    </div>
-    <div class="row">
-      <div class="form-group" style="flex:1">
-        <label for="colors">Colors (comma separated)</label>
-        <input id="colors" value="#0f172a,#e6eef9"/>
-      </div>
-      <div class="form-group" style="flex:1">
-        <label for="fonts">Fonts (comma separated)</label>
-        <input id="fonts" value="Inter,Arial"/>
-      </div>
-    </div>
-    <div style="margin-top:1rem">
-      <button id="generate" class="btn btn-primary">Generate 3 Resumes</button>
-      <a href="profile.html" class="btn btn-outline" style="margin-left:1rem">Edit Profile</a>
-    </div>
-  </div>
+  <meta charset="utf-8" />
+  <title>Resume — Dashboard</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root { --bg:#f6f8fb; --card:#fff; --accent:#2563eb; --muted:#666; --radius:8px; }
+    body{font-family:system-ui, Arial, sans-serif; margin:0; background:var(--bg); color:#111;}
+    header{
+      background:var(--card); box-shadow:0 1px 4px rgba(0,0,0,0.06);
+      padding:12px 20px; display:flex; align-items:center; justify-content:space-between;
+      gap:12px; position:sticky; top:0; z-index:10;
+    }
+    .brand { display:flex; align-items:center; gap:12px; }
+    .logo {
+      width:44px; height:44px; border-radius:8px; background:linear-gradient(135deg,#60a5fa,#2563eb);
+      display:grid; place-items:center; color:#fff; font-weight:700; font-size:18px;
+    }
+    h1 { margin:0; font-size:18px; }
+    .auth-area { display:flex; align-items:center; gap:10px; font-size:14px; color:var(--muted); }
+    .email { font-weight:600; color:#111; margin-right:6px; }
+    .btn { background:var(--accent); color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; }
+    .btn-outline { background:#fff; border:1px solid var(--accent); color:var(--accent); padding:7px 11px; border-radius:6px; cursor:pointer; }
+    main{max-width:1000px;margin:20px auto;padding:0 18px;}
+    .card{background:var(--card); padding:18px; border-radius:var(--radius); box-shadow:0 2px 6px rgba(0,0,0,0.04);}
+    .muted{color:var(--muted); font-size:13px;}
+    .right {display:flex; align-items:center; gap:10px;}
+    @media (max-width:560px){
+      header{flex-direction:column; align-items:flex-start; gap:8px;}
+      .right{width:100%; justify-content:space-between;}
+    }
 
-  <div id="variants">
-    <h2 style="margin-left: 1rem;">Variants</h2>
-    <div id="variantsList"></div>
-  </div>
-</main>
+    .input-label{
+      font-size:15px;
+      font-weight:600;
+      margin-bottom:6px;
+      display:block;
+    }
+    textarea{
+      width:100%;
+      min-height:140px;
+      border:1px solid #ccc;
+      border-radius:8px;
+      padding:10px;
+      font-size:14px;
+      resize:vertical;
+      outline:none;
+    }
+    textarea:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 3px rgba(37,99,235,0.15);
+    }
+
+    .resume-list { margin-top:14px; padding-left:18px; }
+    .resume-list li{
+      margin:10px 0;
+      list-style:disc;
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .resume-link{
+      color:var(--accent);
+      text-decoration:none;
+      font-weight:600;
+    }
+    .resume-link:hover { text-decoration:underline; }
+    .box-title{
+      font-size:18px;
+      font-weight:700;
+      margin-bottom:12px;
+      color:#111;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">CV</div>
+      <div>
+        <h1>Resume Creator</h1>
+        <div class="muted" style="font-size:13px;">Build or download your resume</div>
+      </div>
+    </div>
+
+    <div class="right">
+      <div id="authArea" class="auth-area"></div>
+      <div id="actions"></div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- BOX 1 : COVER LETTER -->
+    <div class="card" style="margin-bottom:20px;">
+      <div class="box-title">Cover Letter</div>
+
+      <label class="input-label">Enter Your Short Summary / Cover Letter</label>
+      <textarea id="summaryInput" placeholder="Write a short professional summary or cover letter here..."></textarea>
+
+      <div style="margin-top:14px; display:flex; gap:10px;">
+        <button class="btn" id="createBtn">Create Cover Letter</button>
+        <button class="btn-outline" id="downloadBtn">Download</button>
+      </div>
+    </div>
+    <!-- END BOX 1 -->
+
+
+    <!-- BOX 2 : RESUME SELECTION -->
+    <div class="card">
+      <div class="box-title">Resume Selection</div>
+
+      <ul class="resume-list">
+        <li>
+          <a class="resume-link" id="resumeLink" href="resume1.html">Resume Variation: Glass</a>
+          <button class="btn-outline" id="downloadResumeBtn" type="button">Download</button>
+        </li>
+        <li>
+          <a class="resume-link" id="resumeLink" href="resume2.html">Resume Variation: Topov</a>
+          <button class="btn-outline" id="downloadResumeBtn" type="button">Download</button>
+        </li>
+        <li>
+          <a class="resume-link" id="resumeLink" href="resume3.html">Resume Variation: Asym</a>
+          <button class="btn-outline" id="downloadResumeBtn" type="button">Download</button>
+        </li>
+        <li>
+          <a class="resume-link" id="resumeLink" href="resume4.html">Resume Variation: Code</a>
+          <button class="btn-outline" id="downloadResumeBtn" type="button">Download</button>
+        </li>
+        <li>
+          <a class="resume-link" id="resumeLink" href="resume5.html">Resume Variation: Acad</a>
+          <button class="btn-outline" id="downloadResumeBtn" type="button">Download</button>
+        </li>
+        <li>
+          <a class="resume-link" id="resumeLink" href="resume6.html">Resume Variation: Retro</a>
+          <button class="btn-outline" id="downloadResumeBtn" type="button">Download</button>
+        </li>
+        <li>
+          <a class="resume-link" id="resumeLink" href="resume7.html">Resume Variation: TCorp</a>
+          <button class="btn-outline" id="downloadResumeBtn" type="button">Download</button>
+        </li>
+        <li>
+          <a class="resume-link" id="resumeLink" href="resume8.html">Resume Variation: Brut</a>
+          <button class="btn-outline" id="downloadResumeBtn" type="button">Download</button>
+        </li>
+        <li>
+          <a class="resume-link" id="resumeLink" href="resume9.html">Resume Variation: Edit</a>
+          <button class="btn-outline" id="downloadResumeBtn" type="button">Download</button>
+        </li>
+        <li>
+          <a class="resume-link" id="resumeLink" href="resume10.html">Resume Variation: Ecog</a>
+          <button class="btn-outline" id="downloadResumeBtn" type="button">Download</button>
+        </li>
+        <li>
+          <a class="resume-link" id="resumeLink" href="resume11.html">Resume Variation: Grade</a>
+          <button class="btn-outline" id="downloadResumeBtn" type="button">Download</button>
+        </li>
+        <li>
+          <a class="resume-link" id="resumeLink" href="resume12.html">Resume Variation: Spot</a>
+          <button class="btn-outline" id="downloadResumeBtn" type="button">Download</button>
+        </li>
+      </ul>
+
+      <div class="muted" style="margin-top:6px;">Click to preview or download the resume template.</div>
+    </div>
+    <!-- END BOX 2 -->
+
+  </main>
 
 <script>
-const API_BASE = '';
-function getToken(){ return sessionStorage.getItem('accessToken'); }
-
-// If no token, redirect to sign-in page
-(function ensureSignedIn(){
-  const t = getToken();
-  if (!t) {
-    alert('Please sign in first.');
-    window.location.href = 'auth.html';
+  function getStoredTokenCandidates(){
+    return {
+      idToken: sessionStorage.getItem('idToken') || localStorage.getItem('idToken'),
+      accessToken: sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken'),
+      generic: sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken')
+    };
   }
-})();
 
-document.getElementById('generate').onclick = async () => {
-  const token = getToken();
-  if (!token) return alert('Sign in first');
-  const payload = {
-    profileFetch: true,
-    design_type: document.getElementById('designType').value,
-    profession: document.getElementById('profession').value,
-    colors: document.getElementById('colors').value,
-    fonts: document.getElementById('fonts').value
+  async function getIdToken(){
+    const cand = getStoredTokenCandidates();
+    if(cand.idToken) return cand.idToken;
+    if(cand.generic) return cand.generic;
+    return null;
+  }
+
+  function getUserEmail(){ return sessionStorage.getItem('userEmail') || ''; }
+  function getUserFullName(){ return sessionStorage.getItem('userFullName') || ''; }
+
+  async function renderAuthArea(){
+    const authArea = document.getElementById('authArea');
+    const actions = document.getElementById('actions');
+
+    const token = await getIdToken();
+    const email = getUserEmail();
+    const fullName = getUserFullName();
+
+    if(!token && !email){
+      authArea.innerHTML = '<span class="muted">Not signed in</span>';
+      actions.innerHTML = '<a href="auth.html" class="btn-outline">Sign in</a>';
+      return;
+    }
+
+    const displayName = fullName || email;
+    authArea.innerHTML = `<span class="muted">Signed in as</span> <span class="email">${displayName}</span>`;
+    actions.innerHTML = `<button class="btn-outline" id="signOutBtn">Sign out</button>`;
+
+    document.getElementById('signOutBtn').onclick = () => {
+      sessionStorage.clear();
+      localStorage.clear();
+      window.location.href = 'auth.html';
+    };
+  }
+
+  document.getElementById('createBtn').onclick = () =>
+    alert('Cover letter created:\n\n' + document.getElementById('summaryInput').value);
+
+  document.getElementById('downloadBtn').onclick = () =>
+    alert('Downloading Cover Letter:\n\n' + document.getElementById('summaryInput').value);
+
+  document.getElementById('downloadResumeBtn').onclick = () => {
+    const fileUrl = 'resume1.html';
+    const a = document.createElement('a');
+    a.href = fileUrl;
+    a.download = 'resume1_glassmorphism.html';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => window.open(fileUrl, '_blank'), 300);
   };
-  const r = await fetch(API_BASE + '/generate-resume', {
-    method:'POST', headers: { Authorization: token, 'Content-Type':'application/json' },
-    body: JSON.stringify(payload)
-  });
-  if (!r.ok) return alert('Generate failed: ' + await r.text());
-  const data = await r.json();
-  showVariants(data.variants || []);
-};
 
-function showVariants(variants) {
-  const wrap = document.getElementById('variantsList');
-  wrap.innerHTML = '';
-  variants.forEach((html, idx) => {
-    const container = document.createElement('div');
-    container.className = 'card';
-    container.innerHTML = `
-      <h4>Variant ${idx+1}</h4>
-      <div class="iframe-preview">
-        <iframe sandbox="allow-same-origin allow-scripts" srcdoc="${escapeHtml(html)}"></iframe>
-      </div>
-      <div class="button-group">
-        <button class="download btn btn-primary">Download PDF</button>
-        <button class="fav btn btn-success">Save to favourites</button>
-        <button class="refresh btn btn-outline">Refresh Style</button>
-      </div>
-    `;
-    wrap.appendChild(container);
-    container.querySelector('.download').onclick = ()=> createPdf(html);
-    container.querySelector('.fav').onclick = ()=> saveFavourite(html);
-    container.querySelector('.refresh').onclick = ()=> promptRefresh();
-  });
-}
-
-function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-async function createPdf(html) {
-  const token = getToken();
-  const r = await fetch(API_BASE + '/create-pdf', { method:'POST', headers: { Authorization: token, 'Content-Type':'application/json' }, body: JSON.stringify({ html }) });
-  if (!r.ok) return alert('PDF failed: ' + await r.text());
-  const data = await r.json();
-  window.open(data.pdfUrl, '_blank');
-}
-
-async function saveFavourite(html) {
-  const token = getToken();
-  const r = await fetch(API_BASE + '/save-favourite', { method:'POST', headers: { Authorization: token, 'Content-Type':'application/json' }, body: JSON.stringify({ html })});
-  if (r.ok) alert('Saved to favourites'); else alert('Failed to save');
-}
-
-function promptRefresh(){
-  const q = prompt('What style of resume would you like? Provide a short description.');
-  if (!q) return;
-  document.getElementById('designType').value = q;
-  document.getElementById('generate').click();
-}
+  renderAuthArea();
 </script>
+
 </body>
 </html>

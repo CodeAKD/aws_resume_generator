@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - The Futurist</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts: Manrope -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Custom styles for glassmorphism and layout */
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-image: url('https://placehold.co/1920x1080/0a0a2a/4a4a8a?text=+'); /* Subtle dark background */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Section hide utility */
+        .section-hidden {
+            display: none;
+        }
+
+        /* Top auth header */
+        .top-auth {
+          position: fixed;
+          right: 18px;
+          top: 12px;
+          z-index: 60;
+          display:flex;
+          gap:10px;
+          align-items:center;
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.06);
+          padding:8px 12px;
+          border-radius:10px;
+          backdrop-filter: blur(6px);
+        }
+        .top-auth .muted { color:rgba(255,255,255,0.6); font-size:13px; }
+        .top-auth .email { font-weight:600; color:#fff; font-size:13px; }
+        .top-auth .btn-outline {
+          background: transparent;
+          border: 1px solid rgba(255,255,255,0.12);
+          color: #fff;
+          padding:6px 10px;
+          border-radius:8px;
+          cursor:pointer;
+          font-size:13px;
+        }
+        .top-auth a { color:#9ed0ff; text-decoration:underline; font-size:13px; }
+
+        @media (max-width: 640px) {
+          .top-auth { right:8px; left:8px; justify-content:space-between; }
+        }
+    </style>
+</head>
+<body class="h-full bg-gray-900 text-neutral-200 antialiased">
+
+    <!-- Top-right small auth area -->
+    <div id="topAuth" class="top-auth" aria-live="polite">
+      <!-- Filled by JS -->
+      <span class="muted">Checking sign-in...</span>
+    </div>
+
+    <div class="container mx-auto max-w-6xl p-4 md:p-8">
+        <main class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            
+            <!-- === LEFT SIDEBAR (Profile) === -->
+            <aside class="md:col-span-1 lg:col-span-1 md:sticky top-8 h-full">
+                <div class="glass-panel rounded-2xl p-6">
+                    <!-- Profile Header -->
+                    <div class="text-center">
+                        <img id="profile-avatar" src="https://placehold.co/128x128/333/999?text=Avatar" alt="Profile Avatar" class="w-32 h-32 rounded-full mx-auto mb-4 border-2 border-gray-400 object-cover">
+                        <h1 id="profile-name" class="text-2xl font-bold text-white">Loading...</h1>
+                        <p id="profile-title" class_DISABLED="text-blue-300 mt-1">Full Stack Developer</p> <!-- Note: No title in JSON, hardcoding for demo -->
+                    </div>
+                    
+                    <!-- Contact & Links -->
+                    <div class="mt-8">
+                        <h3 class="text-xs font-semibold uppercase text-neutral-400 tracking-wider mb-3">Contact</h3>
+                        <div id="social-links" class="flex flex-col space-y-3">
+                            <!-- JS will inject links here -->
+                            <div class="flex items-center space-x-3 text-neutral-300">
+                                <i data-lucide="loader" class="animate-spin"></i>
+                                <span>Loading links...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Skills -->
+                    <div id="skills-section" class="mt-8 section-hidden">
+                        <h3 class="text-xs font-semibold uppercase text-neutral-400 tracking-wider mb-3">Skills</h3>
+                        <div id="skills-list" class="flex flex-wrap gap-2">
+                            <!-- JS will inject skills here -->
+                        </div>
+                    </div>
+
+                    <!-- Hobbies -->
+                    <div id="hobbies-section" class="mt-8 section-hidden">
+                        <h3 class="text-xs font-semibold uppercase text-neutral-400 tracking-wider mb-3">Hobbies</h3>
+                        <div id="hobbies-list" class="flex flex-wrap gap-2">
+                            <!-- JS will inject hobbies here -->
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- === RIGHT MAIN CONTENT === -->
+            <div class="md:col-span-2 lg:col-span-3 space-y-6">
+                
+                <!-- Experience Section -->
+                <section id="experience-section" class="glass-panel rounded-2xl p-6 section-hidden">
+                    <h2 class="text-xl font-bold text-white mb-4 flex items-center">
+                        <i data-lucide="briefcase" class="mr-3 text-blue-300"></i>Work Experience
+                    </h2>
+                    <div id="experience-list" class="relative space-y-6 border-l-2 border-neutral-600/50 pl-6">
+                        <!-- JS will inject experience items here -->
+                        <div class="text-neutral-400">Loading experience...</div>
+                    </div>
+                </section>
+
+                <!-- Education Section -->
+                <section id="education-section" class="glass-panel rounded-2xl p-6 section-hidden">
+                    <h2 class="text-xl font-bold text-white mb-4 flex items-center">
+                        <i data-lucide="graduation-cap" class="mr-3 text-green-300"></i>Education
+                    </h2>
+                    <div id="education-list" class="space-y-4">
+                        <!-- JS will inject education items here -->
+                        <div class="text-neutral-400">Loading education...</div>
+                    </div>
+                </section>
+
+                <!-- Certifications Section -->
+                <section id="certifications-section" class="glass-panel rounded-2xl p-6 section-hidden">
+                    <h2 class="text-xl font-bold text-white mb-4 flex items-center">
+                        <i data-lucide="award" class="mr-3 text-yellow-300"></i>Certifications
+                    </h2>
+                    <div id="certifications-list" class="space-y-3">
+                        <!-- JS will inject certification items here -->
+                        <div class="text-neutral-400">Loading certifications...</div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- === JAVASCRIPT LOGIC === -->
+    <script type="module">
+        // --- CONFIGURATION ---
+        // Set to false to use the API_GATEWAY_URL
+        const USE_MOCK_DATA = false; 
+        
+        // ** PASTE YOUR API GATEWAY LINK HERE **
+        const API_GATEWAY_URL = "https://98waznpkua.execute-api.us-east-1.amazonaws.com/prod/profile";
+
+        // Mock data based on your example
+        const mockData = {
+            "PK": "",
+            "SK": "PROFILE",
+            "certifications": [
+                {
+                    "id": "cert-1763208834749",
+                    "title": "AWS Cloud Intern",
+                    "url": "https://www.credly.com/badges/b9812f53-b82a-458e-830f-94bc21e24c01/linked_in_profile"
+                }
+            ],
+            "education": [
+                {
+                    "details": "Graduated with honors, focusing on cloud computing and distributed systems.",
+                    "end": "",
+                    "id": "edu-1763208763449",
+                    "org": "",
+                    "percentage": "",
+                    "start": "",
+                    "title": "B.Tech in Computer Science"
+                }
+            ],
+            "experience": [
+                {
+                    "details": "Coordinated project timelines, managed stakeholder communications, and contributed to front-end development using React and Tailwind CSS.",
+                    "end": "2025",
+                    "id": "exp-1763208787732",
+                    "org": "",
+                    "start": "",
+                    "title": ""
+                },
+                {
+                    "details": "Developed and maintained internal tools for data analysis, automated reporting scripts, and supported senior developers in bug fixes.",
+                    "end": "2023",
+                    "id": "exp-1763208787731",
+                    "org": "Tech Solutions Ltd.",
+                    "start": "2022",
+                    "title": "Junior Developer Intern"
+                }
+            ],
+            "hobbies": [
+                { "id": "hobby-1763208816715", "value": "Biking" },
+                { "id": "hobby-1763208816716", "value": "Hiking" },
+                { "id": "hobby-1763208816717", "value": "Reading Sci-Fi" }
+            ],
+            "meta": {
+                "avatarUrl": "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80",
+                "email": "",
+                "github": "https://github.com/CodeAKD",
+                "linkedin": "https://www.linkedin.com/in/breakstigma",
+                "mobile": "",
+                "name": "Abhisek Das"
+            },
+            "skills": [
+                { "id": "skill-1763208829532", "value": "Python" },
+                { "id": "skill-1763208829533", "value": "JavaScript" },
+                { "id": "skill-1763208829534", "value": "React" },
+                { "id": "skill-1763208829535", "value": "Node.js" },
+                { "id": "skill-1763208829536", "value": "AWS" },
+                { "id": "skill-1763208829537", "value": "DynamoDB" },
+                { "id": "skill-1763208829538", "value": "Tailwind CSS" }
+            ]
+        };
+
+        // --- AUTH HELPERS (reads session/local storage and optionally Cognito SDK) ---
+        function getStoredTokenCandidates(){
+          return {
+            idToken: sessionStorage.getItem('idToken') || localStorage.getItem('idToken') || sessionStorage.getItem('id_token') || localStorage.getItem('id_token'),
+            accessToken: sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken') || sessionStorage.getItem('access_token') || localStorage.getItem('access_token'),
+            generic: sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken') || sessionStorage.getItem('idToken') || localStorage.getItem('idToken')
+          };
+        }
+
+        async function getIdTokenFromCognitoSDK(){
+          try {
+            if(window.AmazonCognitoIdentity && typeof window.CognitoUserPool !== 'undefined'){
+              const userPool = window.userPool || window.cognitoUserPool;
+              if(userPool && userPool.getCurrentUser){
+                const user = userPool.getCurrentUser();
+                if(user && user.getSession){
+                  const session = await new Promise((res, rej) => user.getSession((e,s) => e ? rej(e) : res(s)));
+                  return session.getIdToken().getJwtToken();
+                }
+              }
+            }
+          } catch (e) {
+            console.warn('Cognito SDK token fetch failed', e);
+          }
+          return null;
+        }
+
+        async function getIdToken(){
+          const cand = getStoredTokenCandidates();
+          if(cand.idToken) return cand.idToken;
+          if(cand.generic) return cand.generic;
+          const sdk = await getIdTokenFromCognitoSDK();
+          if(sdk) return sdk;
+          return null;
+        }
+
+        function getUserEmail(){ return sessionStorage.getItem('userEmail') || localStorage.getItem('userEmail') || ''; }
+        function getUserFullName(){ return sessionStorage.getItem('userFullName') || localStorage.getItem('userFullName') || ''; }
+
+        // Render small top-right auth area
+        async function renderTopAuth(){
+          const container = document.getElementById('topAuth');
+          const token = await getIdToken();
+          const email = getUserEmail();
+          const fullName = getUserFullName();
+
+          // Clear
+          container.innerHTML = '';
+
+          if(!token && !email){
+            // not signed in
+            container.innerHTML = `
+              <span class="muted">Not signed in</span>
+              <a href="auth.html">Sign in</a>
+            `;
+            return;
+          }
+
+          const displayName = fullName || email || 'user';
+          // show signed in as + sign out button
+          container.innerHTML = `
+            <span class="muted">Signed in as</span>
+            <span class="email">${displayName}</span>
+            <button id="signOutBtnHeader" class="btn-outline">Sign out</button>
+          `;
+
+          document.getElementById('signOutBtnHeader').addEventListener('click', () => {
+            try {
+              sessionStorage.clear();
+              localStorage.removeItem('idToken');
+              localStorage.removeItem('accessToken');
+              localStorage.removeItem('userEmail');
+              localStorage.removeItem('userFullName');
+            } catch(e){ console.warn('Error clearing storage', e); }
+            window.location.href = 'auth.html';
+          });
+        }
+
+        // --- RENDER FUNCTIONS ---
+
+        function renderMeta(meta) {
+            if (!meta) return;
+
+            document.getElementById('profile-name').textContent = meta.name || 'N/A';
+            
+            const avatar = document.getElementById('profile-avatar');
+            if (meta.avatarUrl) {
+                avatar.src = meta.avatarUrl;
+                avatar.onerror = () => { avatar.src = 'https://placehold.co/128x128/333/999?text=Error'; };
+            }
+
+            const linksContainer = document.getElementById('social-links');
+            linksContainer.innerHTML = ''; // Clear loading state
+
+            if (meta.email) {
+                linksContainer.innerHTML += `
+                    <a href="mailto:${meta.email}" class="flex items-center space-x-3 text-neutral-300 hover:text-white transition-colors duration-200">
+                        <i data-lucide="mail" class="w-5 h-5"></i>
+                        <span class="truncate">${meta.email}</span>
+                    </a>
+                `;
+            }
+            if (meta.mobile) {
+                linksContainer.innerHTML += `
+                    <div class="flex items-center space-x-3 text-neutral-300">
+                        <i data-lucide="phone" class="w-5 h-5"></i>
+                        <span>${meta.mobile}</span>
+                    </div>
+                `;
+            }
+            if (meta.linkedin) {
+                linksContainer.innerHTML += `
+                    <a href="${meta.linkedin}" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-3 text-neutral-300 hover:text-white transition-colors duration-200">
+                        <i data-lucide="linkedin" class="w-5 h-5"></i>
+                        <span>LinkedIn</span>
+                    </a>
+                `;
+            }
+            if (meta.github) {
+                linksContainer.innerHTML += `
+                    <a href="${meta.github}" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-3 text-neutral-300 hover:text-white transition-colors duration-200">
+                        <i data-lucide="github" class="w-5 h-5"></i>
+                        <span>GitHub</span>
+                    </a>
+                `;
+            }
+        }
+
+        function renderSection(sectionId, listId, items, renderItem) {
+            const section = document.getElementById(sectionId);
+            const listContainer = document.getElementById(listId);
+
+            if (!items || items.length === 0) {
+                section.classList.add('section-hidden');
+                return;
+            }
+
+            section.classList.remove('section-hidden');
+            listContainer.innerHTML = ''; // Clear loading state
+            items.forEach(item => {
+                listContainer.innerHTML += renderItem(item);
+            });
+        }
+
+        function renderSkillItem(skill) {
+            return `
+                <span class="inline-block bg-blue-500/20 text-blue-200 text-xs font-medium px-3 py-1 rounded-full">
+                    ${skill.value}
+                </span>
+            `;
+        }
+        
+        function renderHobbyItem(hobby) {
+            return `
+                <span class="inline-block bg-green-500/20 text-green-200 text-xs font-medium px-3 py-1 rounded-full">
+                    ${hobby.value}
+                </span>
+            `;
+        }
+
+        function renderExperienceItem(exp) {
+            return `
+                <div class="relative">
+                    <!-- Timeline Dot -->
+                    <div class="absolute -left-[33px] top-1.5 w-4 h-4 bg-neutral-500 rounded-full border-4 border-gray-900"></div>
+                    
+                    <span class="text-xs font-medium text-neutral-400 uppercase">${exp.start} - ${exp.end}</span>
+                    <h4 class="text-lg font-semibold text-white mt-1">${exp.title}</h4>
+                    <p class="text-blue-300 font-medium">${exp.org}</p>
+                    <p class="text-neutral-300 mt-2 text-sm">${exp.details}</p>
+                </div>
+            `;
+        }
+        
+        function renderEducationItem(edu) {
+            return `
+                <div class="glass-panel rounded-lg p-4 transition-transform duration-300 hover:scale-[1.02]">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-lg font-semibold text-white">${edu.title}</h4>
+                        <span class="text-xs font-medium text-neutral-400">${edu.start} - ${edu.end}</span>
+                    </div>
+                    <p class="text-green-300 font-medium">${edu.org}</p>
+                    ${edu.percentage ? `<p class="text-sm text-neutral-300 mt-1">Percentage: ${edu.percentage}%</p>` : ''}
+                    <p class="text-neutral-300 mt-2 text-sm">${edu.details}</p>
+                </div>
+            `;
+        }
+
+        function renderCertificationItem(cert) {
+            return `
+                <a href="${cert.url}" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-3 group">
+                    <i data-lucide="external-link" class="w-4 h-4 text-yellow-300/70 group-hover:text-yellow-300"></i>
+                    <span class="text-neutral-300 group-hover:text-white transition-colors duration-200">${cert.title}</span>
+                </a>
+            `;
+        }
+        
+        // --- MAIN LOAD FUNCTION ---
+        
+        async function loadProfile() {
+            let data = {};
+            try {
+                if (USE_MOCK_DATA) {
+                    data = mockData;
+                } else {
+                    // Optionally include an Authorization header if you have idToken
+                    const idToken = await getIdToken();
+                    const headers = idToken ? { 'Authorization': 'Bearer ' + idToken } : {};
+                    const response = await fetch(API_GATEWAY_URL, { headers });
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    data = await response.json();
+                }
+
+                // Render all sections
+                renderMeta(data.meta);
+                renderSection('skills-section', 'skills-list', data.skills, renderSkillItem);
+                renderSection('hobbies-section', 'hobbies-list', data.hobbies, renderHobbyItem);
+                renderSection('experience-section', 'experience-list', data.experience, renderExperienceItem);
+                renderSection('education-section', 'education-list', data.education, renderEducationItem);
+                renderSection('certifications-section', 'certifications-list', data.certifications, renderCertificationItem);
+
+            } catch (error) {
+                console.error("Failed to load profile data:", error);
+                document.body.innerHTML = `<div class="h-screen w-full flex items-center justify-center text-red-400 text-center p-8">
+                    <h1 class="text-2xl">Failed to load profile data.</h1>
+                    <p>${error.message}</p>
+                    <p>Please check the console and ensure the API Gateway URL is correct.</p>
+                </div>`;
+            } finally {
+                // Initialize icons after content is rendered
+                lucide.createIcons();
+            }
+        }
+
+        // Load top auth & profile on page load
+        window.addEventListener('load', async () => {
+          await renderTopAuth();   // render auth UI first
+          await loadProfile();     // then load profile (may use idToken)
+        });
+    </script>
+</body>
+</html>

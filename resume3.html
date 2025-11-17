@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - The Creative</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts: Lexend -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        // Custom Tailwind configuration
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Lexend', 'sans-serif'],
+                    },
+                    colors: {
+                        'cream': '#FDF8F0',
+                        'brand-purple': '#4F46E5',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Lexend', sans-serif;
+        }
+        .section-hidden {
+            display: none;
+        }
+        .content-card {
+             background-color: white;
+             border-radius: 1rem; /* 16px */
+             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+             padding: 1.5rem; /* 24px */
+             transition: all 0.3s ease-in-out;
+        }
+        .content-card:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: translateY(-4px);
+        }
+
+        /* top-right auth widget */
+        .top-auth {
+          position: fixed;
+          right: 18px;
+          top: 12px;
+          z-index: 60;
+          display:flex;
+          gap:10px;
+          align-items:center;
+          background: rgba(255,255,255,0.96);
+          border: 1px solid rgba(0,0,0,0.06);
+          padding:8px 12px;
+          border-radius:10px;
+          box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+        }
+        .top-auth .muted { color:#4b5563; font-size:13px; }
+        .top-auth .email { font-weight:600; color:#111827; font-size:13px; }
+        .top-auth .btn-outline {
+          background: transparent;
+          border: 1px solid #e5e7eb;
+          color: #111827;
+          padding:6px 10px;
+          border-radius:8px;
+          cursor:pointer;
+          font-size:13px;
+        }
+        .top-auth a { color:#1d4ed8; text-decoration:underline; font-size:13px; }
+
+        @media (max-width: 640px) {
+          .top-auth { right:8px; left:8px; justify-content:space-between; }
+        }
+    </style>
+</head>
+<body class="bg-cream">
+
+    <!-- Top-right small auth area -->
+    <div id="topAuth" class="top-auth" aria-live="polite">
+      <span class="muted">Checking sign-in...</span>
+    </div>
+
+    <div class="container mx-auto max-w-6xl p-4 md:p-8">
+        
+        <!-- === HEADER (Profile) === -->
+        <header class="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+            <div class="md:col-span-1 flex justify-center">
+                <img id="profile-avatar" src="https://placehold.co/160x160/C4B5FD/4338CA?text=A+D" alt="Profile Avatar" class="w-40 h-40 rounded-full object-cover border-4 border-white shadow-lg">
+            </div>
+            <div class="md:col-span-2 bg-brand-purple text-white p-8 rounded-2xl shadow-xl">
+                <h1 id="profile-name" class="text-4xl md:text-5xl font-bold">Loading...</h1>
+                <p id="profile-title" class_DISABLED="text-xl text-indigo-200 mt-1">Creative Developer & Cloud Architect</p> <!-- Note: No title in JSON, hardcoding for demo -->
+                
+                <!-- Contact & Links -->
+                <div id="social-links" class="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+                    <!-- JS will inject links here -->
+                    <div class="flex items-center space-x-2 text-indigo-200">
+                        <i data-lucide="loader" class="animate-spin w-4 h-4"></i>
+                        <span>Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- === ASYMMETRICAL CONTENT GRID === -->
+        <main class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Experience Section (Larger) -->
+            <section id="experience-section" class="md:col-span-2 space-y-6 section-hidden">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4 ml-2">Experience</h2>
+                <div id="experience-list" class="space-y-6">
+                    <!-- JS will inject experience items here -->
+                    <div class="content-card text-gray-500">Loading experience...</div>
+                </div>
+            </section>
+
+            <!-- Skills Section (Smaller) -->
+            <section id="skills-section" class="md:col-span-1 space-y-6 section-hidden">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4 ml-2">Skills</h2>
+                <div class="content-card">
+                    <div id="skills-list" class="flex flex-wrap gap-3">
+                        <!-- JS will inject skills here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Education Section -->
+            <section id="education-section" class="md:col-span-2 space-y-6 section-hidden">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4 ml-2">Education</h2>
+                <div id="education-list" class="space-y-6">
+                    <!-- JS will inject education items here -->
+                     <div class="content-card text-gray-500">Loading education...</div>
+                </div>
+            </section>
+
+            <!-- Certs & Hobbies (Stacked) -->
+            <div class="md:col-span-1 space-y-6">
+                
+                <!-- Certifications Section -->
+                <section id="certifications-section" class="space-y-6 section-hidden">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4 ml-2">Certs</h2>
+                    <div class="content-card">
+                        <div id="certifications-list" class="space-y-3">
+                            <!-- JS will inject certs here -->
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Hobbies Section -->
+                <section id="hobbies-section" class="space-y-6 section-hidden">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4 ml-2">Hobbies</h2>
+                    <div class="content-card">
+                        <div id="hobbies-list" class="flex flex-wrap gap-3">
+                            <!-- JS will inject hobbies here -->
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- === JAVASCRIPT LOGIC === -->
+    <script type="module">
+        // --- CONFIGURATION ---
+        // Switch to false to use the API_GATEWAY_URL fetch (authenticated if idToken present)
+        const USE_MOCK_DATA = false; 
+        const API_GATEWAY_URL = "https://98waznpkua.execute-api.us-east-1.amazonaws.com/prod/profile";
+        
+        // Mock data (kept for fallback/testing)
+        const mockData = {
+            "PK": "", "SK": "PROFILE",
+            "certifications": [
+                { "id": "cert-1", "title": "AWS Cloud Intern", "url": "#" }
+            ],
+            "education": [
+                { "details": "Graduated", "end": "", "id": "edu-1", "org": "E", "percentage": "", "start": "", "title": "B.Tech, Computer Science" }
+            ],
+            "experience": [
+                { "details": "Coordinated project timelines, managed stakeholder communications, and contributed to front-end development.", "end": "", "id": "exp-1", "org": "", "start": "", "title": "Project Coordinator" },
+                { "details": "Developed and maintained internal tools for data analysis.", "end": "2023", "id": "exp-2", "org": "Tech Solutions Ltd.", "start": "2022", "title": "Junior Developer Intern" }
+            ],
+            "hobbies": [
+                { "id": "hobby-1", "value": "Biking" }, { "id": "hobby-2", "value": "Reading Sci-Fi" }, { "id": "hobby-3", "value": "Photography" }
+            ],
+            "meta": {
+                "avatarUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80",
+                "email": "",
+                "github": "https://github.com/CodeAKD",
+                "linkedin": "https://www.linkedin.com/in/breakstigma",
+                "mobile": "",
+                "name": "Abhisek Das"
+            },
+            "skills": [
+                { "id": "skill-1", "value": "Python" }, { "id": "skill-2", "value": "JavaScript" },
+                { "id": "skill-3", "value": "React" }, { "id": "skill-4", "value": "AWS" },
+                { "id": "skill-5", "value": "DynamoDB" }, { "id": "skill-6", "value": "Figma" }
+            ]
+        };
+
+        // --- AUTH HELPERS (reads session/local storage and optionally Cognito SDK) ---
+        function getStoredTokenCandidates(){
+          return {
+            idToken: sessionStorage.getItem('idToken') || localStorage.getItem('idToken') || sessionStorage.getItem('id_token') || localStorage.getItem('id_token'),
+            accessToken: sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken') || sessionStorage.getItem('access_token') || localStorage.getItem('access_token'),
+            generic: sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken') || sessionStorage.getItem('idToken') || localStorage.getItem('idToken')
+          };
+        }
+
+        async function getIdTokenFromCognitoSDK(){
+          try {
+            if(window.AmazonCognitoIdentity && typeof window.CognitoUserPool !== 'undefined'){
+              const userPool = window.userPool || window.cognitoUserPool;
+              if(userPool && userPool.getCurrentUser){
+                const user = userPool.getCurrentUser();
+                if(user && user.getSession){
+                  const session = await new Promise((res, rej) => user.getSession((e,s) => e ? rej(e) : res(s)));
+                  return session.getIdToken().getJwtToken();
+                }
+              }
+            }
+          } catch (e) {
+            console.warn('Cognito SDK token fetch failed', e);
+          }
+          return null;
+        }
+
+        async function getIdToken(){
+          const cand = getStoredTokenCandidates();
+          if(cand.idToken) return cand.idToken;
+          if(cand.generic) return cand.generic;
+          const sdk = await getIdTokenFromCognitoSDK();
+          if(sdk) return sdk;
+          return null;
+        }
+
+        function getUserEmail(){ return sessionStorage.getItem('userEmail') || localStorage.getItem('userEmail') || ''; }
+        function getUserFullName(){ return sessionStorage.getItem('userFullName') || localStorage.getItem('userFullName') || ''; }
+
+        // Render small top-right auth area
+        async function renderTopAuth(){
+          const container = document.getElementById('topAuth');
+          const token = await getIdToken();
+          const email = getUserEmail();
+          const fullName = getUserFullName();
+
+          // Clear
+          container.innerHTML = '';
+
+          if(!token && !email){
+            // not signed in
+            container.innerHTML = `
+              <span class="muted">Not signed in</span>
+              <a href="auth.html">Sign in</a>
+            `;
+            return;
+          }
+
+          const displayName = fullName || email || 'user';
+          // show signed in as + sign out button
+          container.innerHTML = `
+            <span class="muted">Signed in as</span>
+            <span class="email">${displayName}</span>
+            <button id="signOutBtnHeader" class="btn-outline">Sign out</button>
+          `;
+
+          document.getElementById('signOutBtnHeader').addEventListener('click', () => {
+            try {
+              sessionStorage.clear();
+              localStorage.removeItem('idToken');
+              localStorage.removeItem('accessToken');
+              localStorage.removeItem('userEmail');
+              localStorage.removeItem('userFullName');
+            } catch(e){ console.warn('Error clearing storage', e); }
+            window.location.href = 'auth.html';
+          });
+        }
+
+        // --- RENDER FUNCTIONS ---
+
+        function renderMeta(meta) {
+            if (!meta) return;
+            document.getElementById('profile-name').textContent = meta.name || 'N/A';
+            
+            const avatar = document.getElementById('profile-avatar');
+            if (meta.avatarUrl) {
+                avatar.src = meta.avatarUrl;
+                avatar.onerror = () => { avatar.src = 'https://placehold.co/160x160/C4B5FD/4338CA?text=Error'; };
+            }
+
+            const linksContainer = document.getElementById('social-links');
+            linksContainer.innerHTML = ''; // Clear loading state
+
+            if (meta.email) {
+                linksContainer.innerHTML += `
+                    <a href="mailto:${meta.email}" class="flex items-center space-x-1.5 text-indigo-200 hover:text-white transition-colors duration-200">
+                        <i data-lucide="mail" class="w-5 h-5"></i>
+                        <span class="font-medium">${meta.email}</span>
+                    </a>
+                `;
+            }
+            if (meta.linkedin) {
+                linksContainer.innerHTML += `
+                    <a href="${meta.linkedin}" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-1.5 text-indigo-200 hover:text-white transition-colors duration-200">
+                        <i data-lucide="linkedin" class="w-5 h-5"></i>
+                        <span class="font-medium">LinkedIn</span>
+                    </a>
+                `;
+            }
+            if (meta.github) {
+                linksContainer.innerHTML += `
+                    <a href="${meta.github}" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-1.5 text-indigo-200 hover:text-white transition-colors duration-200">
+                        <i data-lucide="github" class="w-5 h-5"></i>
+                        <span class="font-medium">GitHub</span>
+                    </a>
+                `;
+            }
+        }
+
+        function renderSection(sectionId, listId, items, renderItem) {
+            const section = document.getElementById(sectionId);
+            const listContainer = document.getElementById(listId);
+            if (!items || items.length === 0) {
+                section.classList.add('section-hidden');
+                return;
+            }
+            section.classList.remove('section-hidden');
+            listContainer.innerHTML = '';
+            items.forEach(item => {
+                listContainer.innerHTML += renderItem(item);
+            });
+        }
+
+        function renderSkillItem(skill) {
+            return `
+                <span class="inline-block bg-indigo-100 text-brand-purple text-sm font-semibold px-4 py-2 rounded-lg">
+                    ${skill.value}
+                </span>
+            `;
+        }
+        
+        function renderHobbyItem(hobby) {
+            return `
+                <span class="inline-block bg-green-100 text-green-700 text-sm font-semibold px-4 py-2 rounded-lg">
+                    ${hobby.value}
+                </span>
+            `;
+        }
+        
+        function renderCertificationItem(cert) {
+            return `
+                <a href="${cert.url}" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-2 group">
+                    <i data-lucide="award" class="w-5 h-5 text-brand-purple/70 group-hover:text-brand-purple"></i>
+                    <span class="text-gray-700 font-medium group-hover:text-brand-purple transition-colors duration-200">${cert.title}</span>
+                </a>
+            `;
+        }
+
+        function renderExperienceItem(exp) {
+            return `
+                <div class="content-card">
+                    <span class="text-sm font-medium text-gray-500 uppercase">${exp.start} - ${exp.end}</span>
+                    <h4 class="text-xl font-semibold text-gray-900 mt-1">${exp.title}</h4>
+                    <p class="text-brand-purple font-medium text-lg">${exp.org}</p>
+                    <p class="text-gray-600 mt-2">${exp.details}</p>
+                </div>
+            `;
+        }
+        
+        function renderEducationItem(edu) {
+            return `
+                <div class="content-card">
+                    <span class="text-sm font-medium text-gray-500 uppercase">${edu.start} - ${edu.end}</span>
+                    <h4 class="text-xl font-semibold text-gray-900 mt-1">${edu.title}</h4>
+                    <p class="text-brand-purple font-medium text-lg">${edu.org}</p>
+                    ${edu.percentage ? `<p class="text-sm text-gray-600 mt-1">Percentage: ${edu.percentage}%</p>` : ''}
+                    <p class="text-gray-600 mt-2">${edu.details}</p>
+                </div>
+            `;
+        }
+        
+        // --- MAIN LOAD FUNCTION ---
+        
+        async function loadProfile() {
+            let data = {};
+            try {
+                if (USE_MOCK_DATA) {
+                    data = mockData;
+                } else {
+                    // include idToken if available for authenticated calls
+                    const idToken = await getIdToken();
+                    const headers = idToken ? { 'Authorization': 'Bearer ' + idToken } : {};
+                    const response = await fetch(API_GATEWAY_URL, { headers });
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    data = await response.json();
+                }
+
+                renderMeta(data.meta);
+                renderSection('skills-section', 'skills-list', data.skills, renderSkillItem);
+                renderSection('hobbies-section', 'hobbies-list', data.hobbies, renderHobbyItem);
+                renderSection('certifications-section', 'certifications-list', data.certifications, renderCertificationItem);
+                renderSection('experience-section', 'experience-list', data.experience, renderExperienceItem);
+                renderSection('education-section', 'education-list', data.education, renderEducationItem);
+
+            } catch (error) {
+                console.error("Failed to load profile data:", error);
+                document.body.innerHTML = `<div class="h-screen w-full flex items-center justify-center text-red-500 text-center p-8">...Error loading profile...</div>`;
+            } finally {
+                lucide.createIcons();
+            }
+        }
+
+        // Load top auth & profile on page load
+        window.addEventListener('load', async () => {
+          await renderTopAuth();   // render auth UI first (so user sees sign-in state)
+          await loadProfile();     // then load profile (will attach idToken if present)
+        });
+    </script>
+</body>
+</html>

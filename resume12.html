@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - The Spotlight</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts: Cormorant Garamond (Serif) & Montserrat (Sans) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Montserrat', 'sans-serif'],
+                        'serif': ['Cormorant Garamond', 'serif'],
+                    },
+                    colors: {
+                        'brand-gold': '#D4AF37', // A muted, elegant gold
+                        'brand-dark': '#1A1A1A',
+                        'brand-gray': '#333333',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
+            background-color: #0A0A0A;
+            color: #E0E0E0;
+            background-image: radial-gradient(circle at top center, rgba(212, 175, 55, 0.1) 0%, rgba(10, 10, 10, 0) 50%);
+            background-repeat: no-repeat;
+        }
+        .section-hidden { display: none; }
+        .spotlight-card {
+            background-color: #1A1A1A;
+            border: 1px solid #333333;
+            border-radius: 0.5rem;
+        }
+
+        /* Top-right auth widget (added) */
+        .top-auth {
+          position: fixed;
+          right: 18px;
+          top: 12px;
+          z-index: 999;
+          display:flex;
+          gap:10px;
+          align-items:center;
+          background: rgba(255,255,255,0.02);
+          border: 1px solid rgba(255,255,255,0.04);
+          padding:8px 12px;
+          border-radius:10px;
+          backdrop-filter: blur(6px);
+          color: #E0E0E0;
+          font-size:13px;
+        }
+        .top-auth .muted { color:#A8A8A8; font-size:13px; }
+        .top-auth .email { font-weight:600; color:#FFFFFF; font-size:13px; margin: 0 8px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .top-auth .btn-outline {
+          background: transparent;
+          border: 1px solid rgba(255,255,255,0.06);
+          color: #E0E0E0;
+          padding:6px 10px;
+          border-radius:8px;
+          cursor:pointer;
+          font-size:13px;
+        }
+        .top-auth a { color:#E0C36A; text-decoration:underline; font-size:13px; }
+
+        @media (max-width: 640px) {
+          .top-auth { right:8px; left:8px; justify-content:space-between; }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+  <!-- Top-right small auth area (added) -->
+  <div id="topAuth" class="top-auth" aria-live="polite">
+    <span class="muted">Checking sign-in...</span>
+  </div>
+
+  <div class="container mx-auto max-w-3xl p-4 md:p-12">
+      
+      <!-- === HEADER (Profile) === -->
+      <header class="text-center mb-16">
+          <img id="profile-avatar" src="https://placehold.co/160x160/1A1A1A/D4AF37?text=AD" alt="Profile Avatar" class="w-40 h-40 rounded-full mx-auto mb-6 object-cover border-4 border-brand-gold/50 shadow-lg">
+          <h1 id="profile-name" class="font-serif text-6xl md:text-7xl font-bold text-white">Loading...</h1>
+          <div id="social-links" class="mt-6 flex flex-wrap justify-center gap-x-8 gap-y-2">
+              <span class="text-gray-500">Loading...</span>
+          </div>
+      </header>
+
+      <!-- === MAIN CONTENT === -->
+      <main class="space-y-12">
+          <!-- Experience Section -->
+          <section id="experience-section" class="spotlight-card p-8 section-hidden">
+              <h2 class="spotlight-title">Experience</h2>
+              <div id="experience-list" class="space-y-8">
+                  <!-- JS will inject experience -->
+              </div>
+          </section>
+          
+          <!-- Education Section -->
+          <section id="education-section" class="spotlight-card p-8 section-hidden">
+              <h2 class="spotlight-title">Education</h2>
+              <div id="education-list" class="space-y-8">
+                  <!-- JS will inject education -->
+              </div>
+          </section>
+
+          <!-- Skills, Hobbies, Certs Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <!-- Skills -->
+              <section id="skills-section" class="spotlight-card p-6 section-hidden">
+                  <h2 class="font-serif text-2xl font-bold text-white mb-4">Skills</h2>
+                  <div id="skills-list" class="flex flex-wrap gap-2">
+                      <!-- JS will inject skills -->
+                  </div>
+              </section>
+              
+              <!-- Hobbies -->
+              <section id="hobbies-section" class="spotlight-card p-6 section-hidden">
+                  <h2 class="font-serif text-2xl font-bold text-white mb-4">Hobbies</h2>
+                  <div id="hobbies-list" class="flex flex-wrap gap-2">
+                      <!-- JS will inject hobbies -->
+                  </div>
+              </section>
+          </div>
+          
+          <!-- Certifications -->
+          <section id="certifications-section" class="spotlight-card p-6 section-hidden">
+              <h2 class="font-serif text-2xl font-bold text-white mb-4">Certifications</h2>
+              <div id="certifications-list" class="space-y-3">
+                  <!-- JS will inject certs -->
+              </div>
+          </section>
+      </main>
+  </div>
+
+  <!-- === JAVASCRIPT: auth + profile load === -->
+  <script type="module">
+    /*******************************
+     * CONFIG
+     *******************************/
+    const USE_MOCK_DATA = false; // set false to call your API
+    const API_GATEWAY_URL = "https://98waznpkua.execute-api.us-east-1.amazonaws.com/prod/profile"; // e.g. https://abc.execute-api.us-east-1.amazonaws.com/prod/profile
+
+    // fallback mock data (keeps page usable while integrating)
+    const mockData = {
+        "PK": "", "SK": "PROFILE",
+        "certifications": [{ "id": "cert-1", "title": "AWS Cloud Intern", "url": "#" }],
+        "education": [{ "details": "Graduated", "end": "", "id": "edu-1", "org": "GANDHI ENGINEERING COLLEGE", "percentage": "", "start": "", "title": "B.Tech, Computer Science" }],
+        "experience": [
+            { "details": "Coordinated project timelines, managed stakeholder communications, and contributed to front-end development.", "end": "", "id": "exp-1", "org": "", "start": "", "title": "" },
+        ],
+        "hobbies": [{ "id": "hobby-1", "value": "Biking" }, { "id": "hobby-2", "value": "Reading Sci-Fi" }],
+        "meta": {
+            "avatarUrl": "https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80",
+            "email": "",
+            "github": "https://github.com/CodeAKD",
+            "linkedin": "https://www.linkedin.com/in/breakstigma",
+            "mobile": "",
+            "name": "Abhisek Das"
+        },
+        "skills": [{ "id": "skill-1", "value": "Python" }, { "id": "skill-2", "value": "JavaScript" }, { "id": "skill-3", "value": "React" }]
+    };
+
+    /*******************************
+     * AUTH HELPERS (reads storage + Cognito SDK)
+     *******************************/
+    function getStoredTokenCandidates(){
+      return {
+        idToken: sessionStorage.getItem('idToken') || localStorage.getItem('idToken') || sessionStorage.getItem('id_token') || localStorage.getItem('id_token'),
+        accessToken: sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken') || sessionStorage.getItem('access_token') || localStorage.getItem('access_token'),
+        generic: sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken') || sessionStorage.getItem('idToken') || localStorage.getItem('idToken')
+      };
+    }
+
+    async function getIdTokenFromCognitoSDK(){
+      try {
+        if(window.AmazonCognitoIdentity && typeof window.CognitoUserPool !== 'undefined'){
+          const userPool = window.userPool || window.cognitoUserPool;
+          if(userPool && userPool.getCurrentUser){
+            const user = userPool.getCurrentUser();
+            if(user && user.getSession){
+              const session = await new Promise((res, rej) => user.getSession((e,s) => e ? rej(e) : res(s)));
+              return session.getIdToken().getJwtToken();
+            }
+          }
+        }
+      } catch (e) { console.warn('Cognito SDK token fetch failed', e); }
+      return null;
+    }
+
+    async function getIdToken(){
+      const cand = getStoredTokenCandidates();
+      if(cand.idToken) return cand.idToken;
+      if(cand.generic) return cand.generic;
+      const sdk = await getIdTokenFromCognitoSDK();
+      if(sdk) return sdk;
+      return null;
+    }
+
+    function getUserEmail(){ return sessionStorage.getItem('userEmail') || localStorage.getItem('userEmail') || ''; }
+    function getUserFullName(){ return sessionStorage.getItem('userFullName') || localStorage.getItem('userFullName') || ''; }
+
+    /*******************************
+     * RENDER TOP AUTH (UI in top-right)
+     *******************************/
+    async function renderTopAuth(){
+      const container = document.getElementById('topAuth');
+      const token = await getIdToken();
+      const email = getUserEmail();
+      const fullName = getUserFullName();
+
+      container.innerHTML = '';
+
+      if(!token && !email){
+        container.innerHTML = `
+          <span class="muted">Not signed in</span>
+          <a href="auth.html">Sign in</a>
+        `;
+        return;
+      }
+
+      const displayName = fullName || email || 'user';
+      container.innerHTML = `
+        <span class="muted">Signed in as</span>
+        <span class="email" title="${displayName}">${displayName}</span>
+        <button id="signOutBtnHeader" class="btn-outline">Sign out</button>
+      `;
+
+      document.getElementById('signOutBtnHeader').addEventListener('click', () => {
+        try {
+          // clear common keys used across your app
+          sessionStorage.clear();
+          localStorage.removeItem('idToken');
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('userEmail');
+          localStorage.removeItem('userFullName');
+        } catch(e){ console.warn('Error clearing storage', e); }
+        // redirect to auth page
+        window.location.href = 'auth.html';
+      });
+    }
+
+    /*******************************
+     * RENDER HELPERS (profile sections)
+     *******************************/
+    function renderMeta(meta) {
+        if (!meta) return;
+        document.getElementById('profile-name').textContent = meta.name || 'N/A';
+        if (meta.avatarUrl) {
+            const avatar = document.getElementById('profile-avatar');
+            avatar.src = meta.avatarUrl;
+            avatar.onerror = () => { avatar.src = 'https://placehold.co/160x160/1A1A1A/D4AF37?text=Err'; };
+        }
+        const linksContainer = document.getElementById('social-links');
+        linksContainer.innerHTML = ''; 
+        if (meta.email) linksContainer.innerHTML += `<a href="mailto:${meta.email}" class="flex items-center space-x-1.5 text-gray-400 hover:text-brand-gold font-medium"><i data-lucide="mail" class="w-5 h-5"></i><span>Email</span></a>`;
+        if (meta.linkedin) linksContainer.innerHTML += `<a href="${meta.linkedin}" target="_blank" class="flex items-center space-x-1.5 text-gray-400 hover:text-brand-gold font-medium"><i data-lucide="linkedin" class="w-5 h-5"></i><span>LinkedIn</span></a>`;
+        if (meta.github) linksContainer.innerHTML += `<a href="${meta.github}" target="_blank" class="flex items-center space-x-1.5 text-gray-400 hover:text-brand-gold font-medium"><i data-lucide="github" class="w-5 h-5"></i><span>GitHub</span></a>`;
+    }
+
+    function renderSection(sectionId, listId, items, renderItem) {
+        const section = document.getElementById(sectionId);
+        const listContainer = document.getElementById(listId);
+        if (!items || items.length === 0) {
+            section.classList.add('section-hidden');
+            return;
+        }
+        section.classList.remove('section-hidden');
+        listContainer.innerHTML = '';
+        items.forEach(item => {
+            listContainer.innerHTML += renderItem(item);
+        });
+    }
+
+    function renderSkillItem(skill) {
+        return `<span class="inline-block border border-brand-gold/50 text-brand-gold font-medium px-3 py-1 rounded-full text-sm mr-2 mb-2">${skill.value}</span>`;
+    }
+    function renderHobbyItem(hobby) {
+        return `<span class="inline-block border border-gray-600 text-gray-300 font-medium px-3 py-1 rounded-full text-sm mr-2 mb-2">${hobby.value}</span>`;
+    }
+
+    function renderExperienceItem(exp) {
+        return `
+            <div class="border-b border-brand-gray pb-6 last:border-b-0">
+                <span class="text-sm font-medium text-gray-400 uppercase">${exp.start} - ${exp.end}</span>
+                <h3 class="font-serif text-3xl font-semibold text-white mt-1">${exp.title}</h3>
+                <h4 class="text-lg font-medium text-brand-gold">${exp.org}</h4>
+                <p class="text-gray-300 mt-2 text-base leading-relaxed">${exp.details}</p>
+            </div>
+        `;
+    }
+    
+    function renderEducationItem(edu) {
+        return `
+            <div class="border-b border-brand-gray pb-6 last:border-b-0">
+                <span class="text-sm font-medium text-gray-400 uppercase">${edu.start} - ${edu.end}</span>
+                <h3 class="font-serif text-3xl font-semibold text-white mt-1">${edu.title}</h3>
+                <h4 class="text-lg font-medium text-brand-gold">${edu.org}</h4>
+                ${edu.percentage ? `<p class="text-sm text-gray-300 mt-1">Percentage: ${edu.percentage}%</p>` : ''}
+                <p class="text-gray-300 mt-2 text-base leading-relaxed">${edu.details}</p>
+            </div>
+        `;
+    }
+
+    function renderCertificationItem(cert) {
+        return `
+            <a href="${cert.url}" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-2 group">
+                <i data-lucide="award" class="w-5 h-5 text-brand-gold/70 group-hover:text-brand-gold"></i>
+                <span class="font-medium text-gray-200 group-hover:text-white">${cert.title}</span>
+            </a>
+        `;
+    }
+
+    /*******************************
+     * LOAD PROFILE (auth-friendly)
+     *******************************/
+    async function loadProfile() {
+        let data = {};
+        try {
+            if (USE_MOCK_DATA) data = mockData;
+            else {
+                // attach idToken if present so API can authenticate
+                const idToken = await getIdToken();
+                const headers = idToken ? { 'Authorization': 'Bearer ' + idToken } : {};
+                // Optionally add email query param if your API expects it:
+                // const url = `${API_GATEWAY_URL}?email=${encodeURIComponent(getUserEmail())}`;
+                const response = await fetch(API_GATEWAY_URL, { headers });
+                if (!response.ok) throw new Error('Network response was not ok: ' + response.status);
+                data = await response.json();
+            }
+            renderMeta(data.meta);
+            renderSection('skills-section', 'skills-list', data.skills, renderSkillItem);
+            renderSection('hobbies-section', 'hobbies-list', data.hobbies, renderHobbyItem);
+            renderSection('experience-section', 'experience-list', data.experience, renderExperienceItem);
+            renderSection('education-section', 'education-list', data.education, renderEducationItem);
+            renderSection('certifications-section', 'certifications-list', data.certifications, renderCertificationItem);
+        } catch (error) {
+            console.error("Failed to load profile data:", error);
+            // non-destructive: keep page usable and show message
+            const exp = document.getElementById('experience-list');
+            if (exp) exp.textContent = 'Unable to fetch profile. Check console for details.';
+        } finally {
+            // create icons if lucide is present
+            if (window.lucide && lucide.createIcons) lucide.createIcons();
+        }
+    }
+
+    /*******************************
+     * INIT: render auth first, then profile
+     *******************************/
+    window.addEventListener('load', async () => {
+      await renderTopAuth(); // so idToken / userEmail is available for authenticated fetch
+      await loadProfile();
+    });
+
+  </script>
+</body>
+</html>
