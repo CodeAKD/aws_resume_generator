@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/><title>Create Resume</title><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="container">
+  <div class="card">
+    <h2>Create Resume</h2>
+    <div class="row">
+      <div class="form-group" style="flex:1">
+        <label for="designType">Design type</label>
+        <input id="designType" value="clean"/>
+      </div>
+      <div class="form-group" style="flex:1">
+        <label for="profession">Profession</label>
+        <input id="profession" value="Software Engineer"/>
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group" style="flex:1">
+        <label for="colors">Colors (comma separated)</label>
+        <input id="colors" value="#0f172a,#e6eef9"/>
+      </div>
+      <div class="form-group" style="flex:1">
+        <label for="fonts">Fonts (comma separated)</label>
+        <input id="fonts" value="Inter,Arial"/>
+      </div>
+    </div>
+    <div style="margin-top:1rem">
+      <button id="generate" class="btn btn-primary">Generate 3 Resumes</button>
+      <a href="profile.html" class="btn btn-outline" style="margin-left:1rem">Edit Profile</a>
+    </div>
+  </div>
+
+  <div id="variants">
+    <h2 style="margin-left: 1rem;">Variants</h2>
+    <div id="variantsList"></div>
+  </div>
+</main>
+
+<script>
+const API_BASE = '';
+function getToken(){ return sessionStorage.getItem('accessToken'); }
+
+// If no token, redirect to sign-in page
+(function ensureSignedIn(){
+  const t = getToken();
+  if (!t) {
+    alert('Please sign in first.');
+    window.location.href = 'auth.html';
+  }
+})();
+
+document.getElementById('generate').onclick = async () => {
+  const token = getToken();
+  if (!token) return alert('Sign in first');
+  const payload = {
+    profileFetch: true,
+    design_type: document.getElementById('designType').value,
+    profession: document.getElementById('profession').value,
+    colors: document.getElementById('colors').value,
+    fonts: document.getElementById('fonts').value
+  };
+  const r = await fetch(API_BASE + '/generate-resume', {
+    method:'POST', headers: { Authorization: token, 'Content-Type':'application/json' },
+    body: JSON.stringify(payload)
+  });
+  if (!r.ok) return alert('Generate failed: ' + await r.text());
+  const data = await r.json();
+  showVariants(data.variants || []);
+};
+
+function showVariants(variants) {
+  const wrap = document.getElementById('variantsList');
+  wrap.innerHTML = '';
+  variants.forEach((html, idx) => {
+    const container = document.createElement('div');
+    container.className = 'card';
+    container.innerHTML = `
+      <h4>Variant ${idx+1}</h4>
+      <div class="iframe-preview">
+        <iframe sandbox="allow-same-origin allow-scripts" srcdoc="${escapeHtml(html)}"></iframe>
+      </div>
+      <div class="button-group">
+        <button class="download btn btn-primary">Download PDF</button>
+        <button class="fav btn btn-success">Save to favourites</button>
+        <button class="refresh btn btn-outline">Refresh Style</button>
+      </div>
+    `;
+    wrap.appendChild(container);
+    container.querySelector('.download').onclick = ()=> createPdf(html);
+    container.querySelector('.fav').onclick = ()=> saveFavourite(html);
+    container.querySelector('.refresh').onclick = ()=> promptRefresh();
+  });
+}
+
+function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+async function createPdf(html) {
+  const token = getToken();
+  const r = await fetch(API_BASE + '/create-pdf', { method:'POST', headers: { Authorization: token, 'Content-Type':'application/json' }, body: JSON.stringify({ html }) });
+  if (!r.ok) return alert('PDF failed: ' + await r.text());
+  const data = await r.json();
+  window.open(data.pdfUrl, '_blank');
+}
+
+async function saveFavourite(html) {
+  const token = getToken();
+  const r = await fetch(API_BASE + '/save-favourite', { method:'POST', headers: { Authorization: token, 'Content-Type':'application/json' }, body: JSON.stringify({ html })});
+  if (r.ok) alert('Saved to favourites'); else alert('Failed to save');
+}
+
+function promptRefresh(){
+  const q = prompt('What style of resume would you like? Provide a short description.');
+  if (!q) return;
+  document.getElementById('designType').value = q;
+  document.getElementById('generate').click();
+}
+</script>
+</body>
+</html>

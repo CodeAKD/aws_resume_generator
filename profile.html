@@ -1,0 +1,484 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Profile Dashboard</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="stylesheet" href="style.css">
+<style>
+  /* small inline styles so file works standalone while you test */
+  body{font-family:system-ui,Arial; padding:18px; background:#f6f8fb}
+  .container{max-width:1100px; margin:0 auto}
+  .card{background:#fff;padding:16px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.06); margin:12px 0}
+  .row{display:flex;gap:12px}
+  .form-group{margin-bottom:10px}
+  input,textarea{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px}
+  button{padding:8px 12px;border-radius:6px;border:none;background:#2563eb;color:#fff;cursor:pointer}
+  .btn-outline{background:#fff;color:#2563eb;border:1px solid #2563eb;padding:8px 12px}
+  .btn-small{padding:6px 8px;font-size:13px}
+  .dynamic-item-box{border:1px solid #eee;padding:10px;border-radius:6px;margin-bottom:8px}
+  img{max-width:120px;border-radius:6px}
+  .text-muted{color:#666;font-size:13px}
+</style>
+</head>
+<body>
+  <main class="container">
+    <div class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem;">
+        <h1 style="margin:0;">Profile Dashboard</h1>
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+          <div id="signedIn" class="text-muted">Not signed in</div>
+          <button id="btnSignOut" class="btn btn-outline" style="display:none;">Sign out</button>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:1rem;">
+        <div style="flex: 2;">
+          <div class="row">
+            <div class="form-group" style="flex: 1;">
+              <label for="name">Full name</label><input id="name"/>
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label for="email">Email (fetched)</label><input id="email" disabled/>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="form-group" style="flex: 1;">
+              <label for="mobile">Mobile</label><input id="mobile"/>
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label for="linkedin">LinkedIn</label><input id="linkedin"/>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="github">GitHub</label><input id="github"/>
+          </div>
+        </div>
+
+        <div id="profile-meta" style="flex:1">
+          <label>Profile picture</label>
+          <div id="avatarPreview" style="margin-bottom:8px">No image</div>
+          <input id="avatarFile" type="file" accept="image/*" style="margin-bottom: 0.5rem;"/>
+          <button id="uploadAvatar" class="btn btn-small">Upload</button>
+          <div class="text-muted" style="font-size: 0.85rem;">Max 2MB. After upload click Save to persist URL.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Education, Experience, Hobbies, Skills, Certs -->
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>Education</h3>
+        <button id="addEdu" class="btn btn-small">+ Add</button>
+      </div>
+      <div id="educationList"></div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>Experience</h3>
+        <button id="addExp" class="btn btn-small">+ Add</button>
+      </div>
+      <div id="experienceList"></div>
+    </div>
+
+    <div class="row">
+      <div class="card" style="flex: 1">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h3>Hobbies</h3>
+          <button id="addHobby" class="btn btn-small">+ Add</button>
+        </div>
+        <div id="hobbiesList"></div>
+      </div>
+
+      <div class="card" style="flex: 1">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h3>Skills</h3>
+          <button id="addSkill" class="btn btn-small">+ Add</button>
+        </div>
+        <div id="skillsList"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>Certifications</h3>
+        <button id="addCert" class="btn btn-small">+ Add</button>
+      </div>
+      <div id="certsList"></div>
+      <div class="text-muted" style="font-size: 0.85rem; margin-top: 1rem;">For each certification provide a title and a link (e.g. a certificate URL).</div>
+    </div>
+
+    <div class="card" style="text-align: right;">
+      <a id="goResume" href="create_resume.html" class="btn btn-outline" style="margin-right:1rem">Go to Resume Creator</a>
+      <button id="save" class="btn">Save Profile</button>
+    </div>
+  </main>
+
+<script>
+/* ========== CONFIG ========== */
+const API_BASE = ''; // <<< replace if needed
+
+/* ========== AUTH STORAGE HELPERS ========== */
+function getStoredTokenCandidates(){
+  // try common keys that apps use (idToken preferred)
+  return {
+    idToken: sessionStorage.getItem('idToken') || localStorage.getItem('idToken') || sessionStorage.getItem('id_token') || localStorage.getItem('id_token'),
+    accessToken: sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken') || sessionStorage.getItem('access_token') || localStorage.getItem('access_token'),
+    generic: sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken') || sessionStorage.getItem('idToken') || localStorage.getItem('idToken')
+  };
+}
+
+// attempt to obtain idToken from Cognito JS SDK if available
+async function getIdTokenFromCognitoSDK(){
+  try{
+    if(window.AmazonCognitoIdentity && typeof window.CognitoUserPool !== 'undefined'){
+      // try common global userPool variable
+      const userPool = window.userPool || window.cognitoUserPool;
+      if(userPool){
+        const user = userPool.getCurrentUser && userPool.getCurrentUser();
+        if(user && user.getSession){
+          const session = await new Promise((res, rej)=> user.getSession((e,s)=> e ? rej(e) : res(s)));
+          return session.getIdToken().getJwtToken();
+        }
+      }
+    }
+  }catch(e){ console.warn('getIdTokenFromCognitoSDK failed', e); }
+  return null;
+}
+
+async function getIdToken(){
+  const cand = getStoredTokenCandidates();
+  if(cand.idToken) return cand.idToken;
+  // next prefer generic stored tokens
+  if(cand.generic) return cand.generic;
+  // try SDK
+  const sdkToken = await getIdTokenFromCognitoSDK();
+  if(sdkToken) return sdkToken;
+  return null;
+}
+
+function getUserEmail(){ return sessionStorage.getItem('userEmail') || localStorage.getItem('userEmail') || ''; }
+function getUserFullName(){ return sessionStorage.getItem('userFullName') || localStorage.getItem('userFullName') || ''; }
+
+/* ========== DOM utilities for dynamic items ========== */
+/* createBox used for both Education and Experience.
+   We remove Percentage/Grade field for Experience only.
+*/
+function createBox(type, id, data={}) {
+  const div = document.createElement('div');
+  div.className = 'dynamic-item-box';
+  div.dataset.id = id;
+
+  const isExperience = type === 'Experience';
+
+  div.innerHTML = `
+    <div class="form-group"><label>${type} Title</label><input data-key="title" value="${(data.title||'').replace(/"/g,'&quot;')}"></div>
+    <div class="form-group"><label>Institute/Company</label><input data-key="org" value="${(data.org||'').replace(/"/g,'&quot;')}"></div>
+    <div class="row">
+      <div class="form-group" style="flex:1"><label>Start</label><input data-key="start" value="${(data.start||'').replace(/"/g,'&quot;')}"></div>
+      <div class="form-group" style="flex:1"><label>End</label><input data-key="end" value="${(data.end||'').replace(/"/g,'&quot;')}"></div>
+    </div>
+    ${isExperience ? '' : `<div class="form-group"><label>Percentage/Grade</label><input data-key="percentage" value="${(data.percentage||'').replace(/"/g,'&quot;')}"></div>`}
+    <div class="form-group"><label>Details</label><textarea data-key="details">${(data.details||'').replace(/</g,'&lt;')}</textarea></div>
+    <button class="del btn btn-small" type="button">Delete</button>`;
+  div.querySelector('.del').onclick = () => div.remove();
+  return div;
+}
+
+function createSmallBox(type, id, data={}) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'mini-row';
+  wrapper.dataset.id = id;
+  wrapper.style.marginBottom = '8px';
+  wrapper.innerHTML = `<input data-key="value" value="${(data.value||'').replace(/"/g,'&quot;')}" placeholder="${type}"><button class="del btn btn-small" type="button">X</button>`;
+  wrapper.querySelector('.del').onclick = () => wrapper.remove();
+  return wrapper;
+}
+function createCertBox(id, data={}) {
+  const div = document.createElement('div');
+  div.className = 'dynamic-item-box';
+  div.dataset.id = id;
+  div.innerHTML = `
+    <div class="form-group"><label>Certification Title</label><input data-key="title" value="${(data.title||'').replace(/"/g,'&quot;')}"></div>
+    <div class="form-group"><label>Link (URL)</label><input data-key="url" value="${(data.url||'').replace(/"/g,'&quot;')}"></div>
+    <button class="del btn btn-small" type="button">Delete</button>`;
+  div.querySelector('.del').onclick = () => div.remove();
+  return div;
+}
+
+/* ========== ADD / REMOVE BUTTONS ========== */
+document.getElementById('addEdu').onclick = ()=> document.getElementById('educationList').appendChild(createBox('Education','edu-'+Date.now()));
+document.getElementById('addExp').onclick = ()=> document.getElementById('experienceList').appendChild(createBox('Experience','exp-'+Date.now()));
+document.getElementById('addHobby').onclick = ()=> document.getElementById('hobbiesList').appendChild(createSmallBox('Hobby','hobby-'+Date.now()));
+document.getElementById('addSkill').onclick = ()=> document.getElementById('skillsList').appendChild(createSmallBox('Skill','skill-'+Date.now()));
+document.getElementById('addCert').onclick = ()=> document.getElementById('certsList').appendChild(createCertBox('cert-'+Date.now()));
+
+/* ========== AUTH HEADER UTILITY ========== */
+function makeAuthHeader(token){
+  if(!token) return null;
+  return token.startsWith('Bearer ') ? token : ('Bearer ' + token);
+}
+
+/* ========== FETCH PROFILE (GET) ========== */
+async function fetchCognitoAttributesAndProfile(){
+  const token = await getIdToken();
+  const signOutBtn = document.getElementById('btnSignOut');
+  const signedInEl = document.getElementById('signedIn');
+
+  if(!token){
+    signedInEl.innerText = 'Not signed in';
+    signOutBtn.style.display = 'none';
+    return;
+  }
+  signOutBtn.style.display = 'inline-block';
+  const email = getUserEmail();
+  const cognitoName = getUserFullName();
+  signedInEl.innerText = 'Signed in as ' + (cognitoName || email || 'user');
+  document.getElementById('email').value = email || '';
+
+  // GET /profile
+  try {
+    const header = makeAuthHeader(token);
+    if(!header) throw new Error('No authorization header');
+
+    const r = await fetch(API_BASE + '/profile', {
+      method: 'GET',
+      headers: { 'Authorization': header, 'Accept': 'application/json' }
+    });
+
+    if(r.status === 401){
+      console.warn('GET /profile returned 401 - token may be invalid or expired');
+      // optional: redirect to auth page
+      // window.location.href = 'auth.html';
+      return;
+    }
+    if(!r.ok){
+      console.warn('GET /profile returned', r.status);
+      return;
+    }
+
+    // parse safely
+    const ct = (r.headers.get('content-type')||'').toLowerCase();
+    let body = null;
+    if(ct.includes('application/json')) body = await r.json();
+    else {
+      const txt = await r.text();
+      try { body = JSON.parse(txt); } catch(e){ console.warn('Non-json profile response', txt); return; }
+    }
+
+    // fill fields carefully (avoid exceptions)
+    if(body && body.meta){
+      document.getElementById('name').value = body.meta.name || '';
+      document.getElementById('mobile').value = body.meta.mobile || '';
+      document.getElementById('linkedin').value = body.meta.linkedin || '';
+      document.getElementById('github').value = body.meta.github || '';
+      if(body.meta.avatarUrl) document.getElementById('avatarPreview').innerHTML = `<img src="${body.meta.avatarUrl}">`;
+    }
+
+    // dynamic lists
+    (body.education||[]).forEach(e => document.getElementById('educationList').appendChild(createBox('Education', e.id || ('edu-'+Date.now()), e)));
+    (body.experience||[]).forEach(e => document.getElementById('experienceList').appendChild(createBox('Experience', e.id || ('exp-'+Date.now()), e)));
+    (body.hobbies||[]).forEach(h => document.getElementById('hobbiesList').appendChild(createSmallBox('Hobby', h.id || ('hobby-'+Date.now()), { value: (h.value||h) })));
+    (body.skills||[]).forEach(s => document.getElementById('skillsList').appendChild(createSmallBox('Skill', s.id || ('skill-'+Date.now()), { value: (s.value||s) })));
+    (body.certifications||[]).forEach(c => document.getElementById('certsList').appendChild(createCertBox(c.id || ('cert-'+Date.now()), { title: c.title || '', url: c.url || '' })));
+
+  } catch(err){
+    console.error('Error fetching profile:', err);
+    // non-fatal; allow user to edit and save anew
+  }
+}
+
+/* ========== BUILD PAYLOAD HELPERS ========== */
+function pruneUndefined(obj){
+  if(!obj || typeof obj !== 'object') return obj;
+  const out = Array.isArray(obj) ? [] : {};
+  Object.keys(obj).forEach(k=>{
+    const v = obj[k];
+    if(v === undefined) return;
+    if(v && typeof v === 'object') out[k] = pruneUndefined(v);
+    else out[k] = v;
+  });
+  return out;
+}
+
+/* ========== SAVE (POST) ========== */
+document.getElementById('save').onclick = async () => {
+  if(!confirm('Are you sure you want to save?')) return;
+  const token = await getIdToken();
+  if(!token) return alert('Sign in first');
+
+  // build payload
+  const payload = {
+    meta: {
+      name: (document.getElementById('name').value || '').trim(),
+      mobile: (document.getElementById('mobile').value || '').trim(),
+      linkedin: (document.getElementById('linkedin').value || '').trim(),
+      github: (document.getElementById('github').value || '').trim(),
+      email: getUserEmail() || undefined,
+      avatarUrl: (document.getElementById('metaAvatarUrl') && document.getElementById('metaAvatarUrl').value) || undefined
+    },
+    education: [],
+    experience: [],
+    hobbies: [],
+    skills: [],
+    certifications: []
+  };
+
+  // collect dynamic items safely
+  for(const node of Array.from(document.getElementById('educationList').children || [])){
+    const obj = {}; node.querySelectorAll('[data-key]').forEach(el=> obj[el.dataset.key] = (el.value||'').trim());
+    obj.id = node.dataset.id || ('edu-'+Date.now());
+    if((obj.title||'').trim() || (obj.org||'').trim() || (obj.details||'').trim()) payload.education.push(obj);
+  }
+  for(const node of Array.from(document.getElementById('experienceList').children || [])){
+    const obj = {}; node.querySelectorAll('[data-key]').forEach(el=> obj[el.dataset.key] = (el.value||'').trim());
+    obj.id = node.dataset.id || ('exp-'+Date.now());
+    if((obj.title||'').trim() || (obj.org||'').trim() || (obj.details||'').trim()) payload.experience.push(obj);
+  }
+  for(const node of Array.from(document.getElementById('hobbiesList').children || [])){
+    const val = node.querySelector('[data-key]')?.value || '';
+    if(val.trim()) payload.hobbies.push({ id: node.dataset.id || ('hobby-'+Date.now()), value: val.trim() });
+  }
+  for(const node of Array.from(document.getElementById('skillsList').children || [])){
+    const val = node.querySelector('[data-key]')?.value || '';
+    if(val.trim()) payload.skills.push({ id: node.dataset.id || ('skill-'+Date.now()), value: val.trim() });
+  }
+  for(const node of Array.from(document.getElementById('certsList').children || [])){
+    const obj = {}; node.querySelectorAll('[data-key]').forEach(el=> obj[el.dataset.key] = (el.value||'').trim());
+    obj.id = node.dataset.id || ('cert-'+Date.now());
+    if((obj.title||'').trim()) payload.certifications.push({ id: obj.id, title: obj.title.trim(), url: (obj.url||'').trim() });
+  }
+
+  // prune empty/undefined
+  const finalPayload = pruneUndefined(payload);
+  console.log('Saving payload', finalPayload);
+
+  // send to backend
+  try {
+    const authHeader = makeAuthHeader(token);
+    if(!authHeader) throw new Error('No auth header');
+
+    const res = await fetch(API_BASE + '/profile', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'Accept':'application/json', 'Authorization': authHeader },
+      body: JSON.stringify(finalPayload)
+    });
+
+    const ct = (res.headers.get('content-type')||'').toLowerCase();
+    let body = '';
+    if(ct.includes('application/json')) body = await res.json();
+    else body = await res.text();
+
+    if(res.ok){
+      alert('Saved');
+      console.log('Save response', body);
+    } else {
+      console.error('Save failed', res.status, body);
+      // if unauthorized, guide user to sign in again
+      if(res.status === 401) {
+        alert('Unauthorized — please sign in again.');
+        window.location.href = 'auth.html';
+      } else {
+        alert('Save failed: ' + (body?.message || body || res.status));
+      }
+    }
+  } catch(err){
+    console.error('Network or API error on save:', err);
+    alert('Network or API error — open Console for details. Possible causes: incorrect API_BASE, CORS not enabled on API Gateway, or token invalid/expired.');
+  }
+};
+
+/* ========== AVATAR UPLOAD (presign) ========== */
+/* Integrated avatar upload -> presign-download flow */
+/* Integrated avatar upload -> presign-upload returns uploadUrl + downloadUrl */
+document.getElementById('uploadAvatar').onclick = async () => {
+  const fileInput = document.getElementById('avatarFile');
+  if(!fileInput.files.length) return alert('Choose file first');
+  const file = fileInput.files[0];
+  if(file.size > 2*1024*1024) return alert('File too large (max 2MB)');
+
+  const token = await getIdToken();
+  if(!token) return alert('Sign in first');
+
+  const filename = `avatar-${Date.now()}-${file.name.replace(/\s+/g,'_')}`;
+  const authHeader = makeAuthHeader(token);
+
+  try {
+    // Request presigned PUT + GET in one call
+    const presignUrl = API_BASE + '/presign-upload?filename=' + encodeURIComponent(filename) + '&contentType=' + encodeURIComponent(file.type);
+    const presignRes = await fetch(presignUrl, { headers: { 'Authorization': authHeader }});
+    const presignJson = await presignRes.json().catch(()=>null);
+    if(!presignRes.ok) {
+      console.error('presign-upload failed', presignRes.status, presignJson);
+      return alert('Cannot get presigned url: ' + (presignJson?.message || presignJson?.error || presignRes.status));
+    }
+
+    // PUT to S3
+    let put;
+    try {
+      put = await fetch(presignJson.uploadUrl, { method: 'PUT', headers: { 'Content-Type': file.type }, body: file });
+    } catch(e) {
+      console.error('PUT network error', e);
+      return alert('Upload failed (network). See console.');
+    }
+
+    if(!put.ok && put.status === 403) {
+      // retry without content-type if signature mismatch
+      const putRetry = await fetch(presignJson.uploadUrl, { method: 'PUT', body: file });
+      if(!putRetry.ok) {
+        const txt = await putRetry.text().catch(()=>'<no body>');
+        console.error('PUT retry failed', putRetry.status, txt);
+        return alert('Upload failed after retry: ' + putRetry.status);
+      }
+    } else if(!put.ok) {
+      const txt = await put.text().catch(()=>'<no body>');
+      console.error('PUT failed', put.status, txt);
+      return alert('Upload failed: ' + put.status);
+    }
+
+    // Show preview using downloadUrl provided by presign-upload (temporary GET)
+    if(presignJson.downloadUrl) {
+      document.getElementById('avatarPreview').innerHTML = `<img src="${presignJson.downloadUrl}" alt="avatar preview">`;
+    } else {
+      // Fallback: try to show objectUrl (may be private)
+      document.getElementById('avatarPreview').innerHTML = `<img src="${presignJson.objectUrl}" alt="avatar preview">`;
+    }
+
+    // Persist permanent object path for saving profile
+    setMetaAvatarUrl(presignJson.objectUrl);
+    alert('Uploaded. Click Save Profile to persist URL.');
+
+  } catch(err) {
+    console.error('Avatar upload error', err);
+    alert('Unexpected upload error. See console.');
+  }
+
+  function setMetaAvatarUrl(url) {
+    let metaAvatarField = document.getElementById('metaAvatarUrl');
+    if(!metaAvatarField){
+      metaAvatarField = document.createElement('input');
+      metaAvatarField.type='hidden';
+      metaAvatarField.id='metaAvatarUrl';
+      document.body.appendChild(metaAvatarField);
+    }
+    metaAvatarField.value = url;
+  }
+};
+
+
+
+
+/* ========== SIGN OUT ========== */
+document.getElementById('btnSignOut').onclick = () => {
+  sessionStorage.clear(); localStorage.removeItem('accessToken'); localStorage.removeItem('userEmail'); // keep it simple
+  window.location.href = 'auth.html';
+};
+
+/* ========== INITIALIZE ========== */
+fetchCognitoAttributesAndProfile();
+</script>
+</body>
+</html>

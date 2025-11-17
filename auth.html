@@ -1,0 +1,180 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Resume App — Auth</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.2.0/dist/amazon-cognito-identity.min.js"></script>
+</head>
+<body>
+  <main class="auth-container">
+    <div class="card">
+      <h2>Create Account</h2>
+      <div class="form-group">
+        <label for="signupEmail">Email</label>
+        <input id="signupEmail" type="email" />
+      </div>
+      <div class="form-group">
+        <label for="signupPass">Password (min 8)</label>
+        <input id="signupPass" type="password" />
+      </div>
+      <button id="btnSignup" class="btn btn-primary" style="width:100%">Sign up</button>
+      <p class="text-muted" style="margin-top:1rem;">After sign up you'll receive a confirmation code to your email.</p>
+    </div>
+
+    <div class="card">
+      <h2>Confirm Account</h2>
+      <div class="form-group">
+        <label for="confirmEmail">Email</label>
+        <input id="confirmEmail" type="email"/>
+      </div>
+      <div class="form-group">
+        <label for="confirmCode">Confirmation code</label>
+        <input id="confirmCode"/>
+      </div>
+      <button id="btnConfirm" class="btn btn-primary" style="width:100%">Confirm</button>
+    </div>
+
+    <div class="card">
+      <h2>Sign in</h2>
+      <div class="form-group">
+        <label for="signinEmail">Email</label>
+        <input id="signinEmail" type="email"/>
+      </div>
+      <div class="form-group">
+        <label for="signinPass">Password</label>
+        <input id="signinPass" type="password"/>
+      </div>
+      <button id="btnSignin" class="btn btn-primary" style="width:100%">Sign in</button>
+      <div id="signinResult" class="text-muted" style="margin-top:1rem;"></div>
+    </div>
+  </main>
+
+  <script>
+  // ------- CONFIG: replace these with your Cognito settings -------
+  const COGNITO_REGION = '';
+  const USER_POOL_ID = '';     // <-- your user pool id
+  const APP_CLIENT_ID = ''; // <-- your app client id (no secret)
+  const API_BASE = ''; // your API (optional)
+
+  if (typeof AmazonCognitoIdentity === 'undefined') {
+    console.error('AmazonCognitoIdentity SDK not loaded. Check script include.');
+    alert('Cognito SDK not loaded. Refresh the page.');
+  }
+
+  const { CognitoUserPool, CognitoUserAttribute, CognitoUser, AuthenticationDetails } = AmazonCognitoIdentity;
+  const poolData = { UserPoolId: USER_POOL_ID, ClientId: APP_CLIENT_ID };
+  const userPool = new CognitoUserPool(poolData);
+
+  function showStatus(msg) {
+    console.log('[auth] ' + msg);
+    const el = document.getElementById('signinResult');
+    if (el) el.innerText = msg;
+  }
+
+  // Signup
+  document.getElementById('btnSignup').onclick = async () => {
+    try {
+      const email = document.getElementById('signupEmail').value.trim();
+      const pass = document.getElementById('signupPass').value;
+      if (!email || !pass) return alert('Enter email & password');
+      if (pass.length < 8) return alert('Password must be minimum 8 characters');
+
+      const attrList = [
+        new CognitoUserAttribute({ Name: 'email', Value: email })
+      ];
+
+      userPool.signUp(email, pass, attrList, null, (err, result) => {
+        if (err) {
+          console.error('Signup error', err);
+          return alert('Signup error: ' + (err.message || JSON.stringify(err)));
+        }
+        console.log('signup result', result);
+        alert('Signed up. Check your email for confirmation code.');
+      });
+    } catch (e) {
+      console.error(e);
+      alert('Unexpected error during signup: ' + e.message);
+    }
+  };
+
+  // Confirm
+  document.getElementById('btnConfirm').onclick = async() => {
+    try {
+      const email = document.getElementById('confirmEmail').value.trim();
+      const code = document.getElementById('confirmCode').value.trim();
+      if (!email || !code) return alert('Enter email and confirmation code');
+
+      const userData = { Username: email, Pool: userPool };
+      const cognitoUser = new CognitoUser(userData);
+      cognitoUser.confirmRegistration(code, true, function(err, result){
+        if (err) {
+          console.error('Confirm error', err);
+          return alert('Confirm error: ' + (err.message || JSON.stringify(err)));
+        }
+        alert('User confirmed. Now sign in.');
+      });
+    } catch (e) {
+      console.error(e);
+      alert('Unexpected error during confirm: ' + e.message);
+    }
+  };
+
+  // Sign in
+  document.getElementById('btnSignin').onclick = async () => {
+    try {
+      const email = document.getElementById('signinEmail').value.trim();
+      const pass = document.getElementById('signinPass').value;
+      if (!email || !pass) return alert('Enter email & password');
+
+      const authData = { Username: email, Password: pass };
+      const authDetails = new AuthenticationDetails(authData);
+      const cognitoUser = new CognitoUser({ Username: email, Pool: userPool });
+
+      cognitoUser.authenticateUser(authDetails, {
+        onSuccess: function (result) {
+          try {
+            const idToken = result.getIdToken().getJwtToken();
+            const accessToken = result.getAccessToken().getJwtToken();
+            const refreshToken = result.getRefreshToken() && result.getRefreshToken().getToken();
+
+            // Save tokens and email in sessionStorage
+            sessionStorage.setItem('idToken', idToken);
+            sessionStorage.setItem('accessToken', accessToken);
+            if (refreshToken) sessionStorage.setItem('refreshToken', refreshToken);
+            sessionStorage.setItem('userEmail', email);
+
+            // Get optional 'name' attribute (if present) and then redirect to profile
+            cognitoUser.getUserAttributes(function(err, attributes) {
+              if (err) {
+                console.warn('Could not get user attributes:', err);
+                sessionStorage.removeItem('userFullName');
+              } else {
+                const nameAttr = (attributes||[]).find(a => (a.getName && a.getName() === 'name') || (a.Name === 'name'));
+                const nameVal = nameAttr ? (nameAttr.getValue ? nameAttr.getValue() : nameAttr.Value) : '';
+                if (nameVal) sessionStorage.setItem('userFullName', nameVal);
+                else sessionStorage.removeItem('userFullName');
+              }
+              showStatus('Signed in. Redirecting to profile...');
+              // Redirect now that sessionStorage is set
+              window.location.href = 'profile.html';
+            });
+          } catch (e) {
+            console.error('Error processing auth result', e);
+            alert('Sign in succeeded but handling tokens failed: ' + e.message);
+          }
+        },
+        onFailure: function(err) {
+          console.error('Auth failure', err);
+          alert(err.message || JSON.stringify(err));
+        }
+      });
+    } catch (e) {
+      console.error(e);
+      alert('Unexpected error during sign in: ' + e.message);
+    }
+  };
+  </script>
+</body>
+</html>

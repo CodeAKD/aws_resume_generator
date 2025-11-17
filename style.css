@@ -1,0 +1,273 @@
+/* style.css */
+
+/* 1. Global Setup & Variables */
+:root {
+  --primary-color: #2563eb;
+  --primary-hover: #1d4ed8;
+  --success-color: #10b981;
+  --success-hover: #059669;
+  --danger-color: #ef4444;
+  --danger-hover: #dc2626;
+  --bg-color: #f8fafc;
+  --surface-color: #ffffff;
+  --text-color: #0f172a;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  --border-radius-lg: 12px;
+  --border-radius-md: 8px;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+/* 2. Layout & Card */
+.container,
+.auth-container {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.auth-container {
+  max-width: 450px;
+}
+
+.card {
+  background: var(--surface-color);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 1.5rem;
+}
+
+h1, h2, h3, h4 {
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+h1 { font-size: 2rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* 3. Forms */
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.35rem;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="file"],
+textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input[type="file"] {
+  padding: 0.5rem;
+  font-size: 0.9rem;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+input[disabled] {
+  background-color: #f1f5f9;
+  cursor: not-allowed;
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* 4. Buttons */
+.btn {
+  border: 0;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--border-radius-md);
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s, transform 0.1s;
+  display: inline-block;
+  text-align: center;
+}
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-primary { background-color: var(--primary-color); }
+.btn-primary:hover { background-color: var(--primary-hover); }
+
+.btn-success { background-color: var(--success-color); }
+.btn-success:hover { background-color: var(--success-hover); }
+
+.btn-danger { background-color: var(--danger-color); }
+.btn-danger:hover { background-color: var(--danger-hover); }
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+.btn-outline:hover {
+  background-color: rgba(37, 99, 235, 0.05);
+  transform: translateY(-1px);
+}
+
+.btn-small {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+}
+
+/* 5. Utility & Specifics */
+.text-muted {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.row {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.row > * {
+  flex: 1;
+}
+
+/* Profile Page */
+#avatarPreview {
+  width: 200px;
+  height: 200px;
+  background: #f1f5f9;
+  border-radius: var(--border-radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+}
+#avatarPreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+#profile-meta {
+  width: 260px;
+  flex: none; /* Don't grow */
+}
+
+.dynamic-item-box {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: #fafcff;
+}
+.dynamic-item-box .row {
+  gap: 1rem;
+}
+
+.mini-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+.mini-row input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Create Resume Page */
+#variantsList .card {
+  box-shadow: var(--shadow-lg);
+}
+.iframe-preview {
+  height: 250px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  margin-bottom: 1rem;
+}
+.iframe-preview iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  /* Scale down the content to show a "preview" */
+  transform: scale(0.5);
+  transform-origin: 0 0;
+  width: 200%;
+  height: 200%;
+}
+.button-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* 6. Responsive */
+@media (max-width: 768px) {
+  .row {
+    flex-direction: column;
+    gap: 0;
+  }
+  #profile-meta {
+    width: 100%;
+  }
+  .iframe-preview {
+    height: 300px;
+  }
+}
